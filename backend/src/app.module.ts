@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CardModule } from './card/card.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [],
+  imports: [CardModule, TypeOrmModule.forRoot(), AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
