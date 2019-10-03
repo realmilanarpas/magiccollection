@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "cd frontend && npm install && cd ../backend && npm install",
     "build": "cd backend && npm run build && cd ../frontend && npm run build",
-    "heroku-postbuild": "cd frontend && npm run heroku-postbuild"
+    "heroku-postbuild": "rimraf frontend && cd backend npm prune"
   },
   "repository": {
     "type": "git",
