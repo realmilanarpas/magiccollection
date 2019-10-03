@@ -5,6 +5,7 @@ import { Observable, Subject } from 'rxjs';
 import { FilterChange } from '../model/filter-change.model';
 import { CardRarity } from '../model/card-rarity.enum';
 import { environment } from 'src/environments/environment';
+import { AuthenticationService } from '../auth/authentication.service';
 
 @Injectable()
 export class MagicCardsListService {
@@ -17,13 +18,17 @@ export class MagicCardsListService {
   private filterChange = new Subject<FilterChange>();
   private filterChangeSub = this.filterChange.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,
+    private authService: AuthenticationService) {}
 
   getCardsForExpansion(expansion: string): Observable<Card[]> {
-    return this.http.get<Card[]>(
-      environment.mainUrl + '/api/card/allsetcard',
-      { params: { search: expansion } }
-    );
+    let url: string;
+    if (this.authService.isLoggedIn()) {
+      url = environment.mainUrl + `/card/cardsetuser/${expansion}`;
+    } else {
+      url = environment.mainUrl + `/card/cardset/${expansion}`;
+    }
+    return this.http.get<Card[]>(url);
   }
 
   getFilterChangeSub(): Observable<FilterChange> {

@@ -57,6 +57,7 @@ export class MagicCardListComponent implements OnInit, OnDestroy {
     this.magicCardsListService
     .getCardsForExpansion(expansionArg)
     .subscribe((cards: Card[]) => {
+      console.log(cards);
       this.cardsArray = cards;
       this.filterCards();
       if (this.route.snapshot.queryParams['page']) {

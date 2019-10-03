@@ -6,59 +6,47 @@ import { CardSet } from './entity/card-set.entity';
 import { User } from '../auth/entity/user.entity';
 import { CardAmount } from './entity/card-amount.entity';
 import { CardRepository } from './card.repository';
+import { CardAmountDto } from './dto/card-amount.dto';
 
 @Injectable()
 export class CardService {
   constructor(
     @InjectRepository(CardRepository)
     private cardRepository: CardRepository,
-    @InjectRepository(CardSet)
-    private cardExpansionRepository: Repository<CardSet>,
   ) {}
 
-  async createDummyCards() {
-    console.log('Dummy lefutott');
-
-    const newSet = new CardSet();
-    newSet.name = 'Ravnica';
-    newSet.shortName = 'RNA';
-    await newSet.save();
-
-    const newCard = new Card();
-    newCard.name = 'Test card1';
-    newCard.cardNumber = 2;
-    newCard.rarity = 'R';
-    newCard.layout = 'Normal';
-    newCard.cardSet = newSet;
-    await newCard.save();
-
-    const newCard2 = new Card();
-    newCard2.name = 'Test card2';
-    newCard2.cardNumber = 3;
-    newCard2.rarity = 'U';
-    newCard2.layout = 'Normal';
-    newCard2.cardSet = newSet;
-    await newCard2.save();
-
-    const newUser = new User();
-    newUser.name = 'Csabi';
-    newUser.password = '111';
-    await newUser.save();
-
-    const newAmount = new CardAmount();
-    newAmount.user = newUser;
-    newAmount.card = newCard;
-    newAmount.amount = 10;
-    await newAmount.save();
-
-    const newAmount2 = new CardAmount();
-    newAmount2.user = newUser;
-    newAmount2.card = newCard2;
-    newAmount2.amount = 10;
-    await newAmount2.save();
+  async getCardSet(cardSet: string): Promise<CardAmountDto[]> {
+    const cardList = await this.cardRepository.getCardSet(cardSet);
+    return this.convertToCardAmountDto(cardList);
   }
 
-  async getCardSet(cardSet: string): Promise<Card[]> {
-    return await this.cardRepository.getCardSet(cardSet);
+  async getCardSetUser(cardSet: string, user: User): Promise<CardAmountDto[]> {
+    const cardList = await this.cardRepository.getCardSetUser(cardSet, user);
+    return this.convertToCardAmountDto(cardList);
+  }
+
+  convertToCardAmountDto(cardList: Card[]): CardAmountDto[] {
+    const cardAmountDtoList: CardAmountDto[] = [];
+    for (const card of cardList) {
+      const cardAmountDto = new CardAmountDto();
+      cardAmountDto.cardExpansion = card.cardSet.shortName;
+      cardAmountDto.cardNumber = this.pad(card.cardNumber, 3);
+      cardAmountDto.cardAmount = this.getCardAmount(card);
+      cardAmountDto.layout = card.layout;
+      cardAmountDto.rarity = card.rarity;
+      cardAmountDtoList.push(cardAmountDto);
+    }
+
+    return cardAmountDtoList;
+  }
+
+  private getCardAmount(card: Card): number {
+    return card.cardAmount && card.cardAmount[0] ? card.cardAmount[0].amount : 0;
+  }
+
+  private pad(text: string | number, width: number, z?: string) {
+    z = z || '0';
+    text = text + '';
+    return text.length >= width ? text : new Array(width - text.length + 1).join(z) + text;
   }
 }

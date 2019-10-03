@@ -4,11 +4,13 @@ import {
   Column,
   OneToMany,
   BaseEntity,
+  Unique,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { CardAmount } from '../../card/entity/card-amount.entity';
 
 @Entity()
+@Unique(['email'])
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -25,10 +27,10 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   salt: string;
 
-  @Column({ nullable: true })
-  dci: number;
+  @Column({ nullable: true, length: 10 })
+  dci: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: false })
   activated: boolean;
 
   @OneToMany(type => CardAmount, cardAmount => cardAmount.user, {

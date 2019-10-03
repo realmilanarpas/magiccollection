@@ -36,24 +36,26 @@ export class AuthenticationService {
     }
 
     registration(email: string, username: string, password: string) {
-      return this.http.post<any>(environment.mainUrl + '/api/user/registration', { email, username, password });
+      return this.http.post<any>(environment.mainUrl + '/auth/signup', { email, username, password, dci: '2121' });
     }
 
     login(email: string, password: string) {
-      return this.http.post<{user: User, expiresIn: number}>(environment.mainUrl + '/api/user/userLogin', { email, password })
+      return this.http.post<{accessToken}>(environment.mainUrl + '/auth/signin', { email, password })
         .pipe(map(resp => {
           // login successful if there's a jwt token in the response
-          if (resp.user && resp.user.token) {
+          const user = new User();
+          if (resp.accessToken ) {
+            user.token = resp.accessToken;
             const now = new Date();
-            const expirationDate = new Date(now.getTime() + resp.expiresIn * 1000);
-            resp.user.expiresIn = expirationDate;
+            const expirationDate = new Date(now.getTime() + 1000 * 1000);
+            user.expiresIn = expirationDate;
             // store user details and jwt token in local storage to keep user logged in between page refreshes
-            localStorage.setItem('currentUser', JSON.stringify(resp.user));
-            this.currentUserSubject.next(resp.user);
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            this.currentUserSubject.next(user);
             this.loggedIn = true;
           }
 
-          return resp.user;
+          return user;
         }));
     }
 

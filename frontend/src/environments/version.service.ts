@@ -4,6 +4,6 @@ import { Injectable } from '@angular/core';
 /* tslint:disable */
 @Injectable({providedIn: 'root'})
 export class VersionService {
-  public VERSION = "2019-09-15 16:45:11";
+  public VERSION = "2019-10-03 19:54:22";
 }
 /* tslint:enable */
